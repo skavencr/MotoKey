@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BLE_Motokey</string>
+    <string name="enviar">Enviar</string>
+</resources>
