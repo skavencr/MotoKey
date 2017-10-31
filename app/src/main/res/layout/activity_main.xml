@@ -22,5 +22,5 @@
         android:layout_below="@+id/IdDato"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="67dp"
-        android:text="@string/enviar" />
+        android:text="Enviar" />
 </RelativeLayout>
