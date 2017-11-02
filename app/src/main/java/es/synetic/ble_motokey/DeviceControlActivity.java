@@ -183,9 +183,9 @@ public class DeviceControlActivity extends Activity {
 
         // Código Mio
         Button enviar = findViewById(R.id.IdEnviar);
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
+        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
 
 
 
@@ -208,6 +208,7 @@ public class DeviceControlActivity extends Activity {
 
 
                 String uuid = "3347aaa4-fb94-11e2-a8e4-f23c91aec05e";
+                mBluetoothGatt.connect();
                 mBluetoothGatt.discoverServices();
                 List<BluetoothGattService> servicios= mBluetoothGatt.getServices();
                 BluetoothLeService servicio = new BluetoothLeService();
