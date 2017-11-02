@@ -17,27 +17,40 @@
 package es.synetic.ble_motokey;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * For a given BLE device, this Activity provides the user interface to connect, display data,
@@ -164,8 +177,53 @@ public class DeviceControlActivity extends Activity {
 
 
 
-        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        final Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+
+        // Código Mio
+        Button enviar = findViewById(R.id.IdEnviar);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
+
+
+
+        BluetoothGattCallback gattCallback= new BluetoothGattCallback() {
+            @Override
+            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                super.onConnectionStateChange(gatt, status, newState);
+            }
+
+            @Override
+            public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+                super.onCharacteristicWrite(gatt, characteristic, status);
+            }
+        };
+        final BluetoothGatt mBluetoothGatt = device.connectGatt(this, false, gattCallback);
+        enviar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+                String uuid = "3347aaa4-fb94-11e2-a8e4-f23c91aec05e";
+                mBluetoothGatt.discoverServices();
+                List<BluetoothGattService> servicios= mBluetoothGatt.getServices();
+                BluetoothLeService servicio = new BluetoothLeService();
+                BluetoothGattCharacteristic puerto_envio=servicios.get(3).getCharacteristic(UUID.fromString(uuid));
+                EditText valor = findViewById(R.id.IdDato);
+                puerto_envio.setValue(valor.getText().toString());
+                mBluetoothGatt.writeCharacteristic(puerto_envio);
+
+
+
+
+
+
+            }
+
+        });
     }
 
     @Override
@@ -176,6 +234,7 @@ public class DeviceControlActivity extends Activity {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }
+
     }
 
     @Override
